@@ -12,8 +12,6 @@
 
 #include "Server.hpp"
 
-
-
 // Function to trim whitespace
 std::string ft_trim(const std::string &str)
 {
@@ -52,4 +50,10 @@ std::vector<std::string> ft_split(std::string str, char delimiter)
         result.push_back(word);
     }
     return result;
+}
+
+// Function to create a user identifier string in IRC format
+std::string user_id(const std::string &nickname, const std::string &username)
+{
+    return ":" + nickname + "!" + username + "@localhost";
 }

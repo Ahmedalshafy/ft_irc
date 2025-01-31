@@ -57,8 +57,8 @@ int Channel::GetKey(){return this->key;}
 int Channel::GetLimit(){return this->limit;}
 int Channel::GetClientsNumber(){return this->clients.size() + this->admins.size();}
 bool Channel::Gettopic_restriction() const{return this->topic_restriction;}
-bool Channel::getModeAtindex(size_t index){return modes[index].second;}
-bool Channel::clientInChannel(std::string &nick){
+bool Channel::getModeAtindex(size_t index) const{return modes[index].second;}
+bool Channel::clientInChannel(const std::string &nick) const{
 	for(size_t i = 0; i < clients.size(); i++){
 		if(clients[i].getNickname() == nick)
 			return true;

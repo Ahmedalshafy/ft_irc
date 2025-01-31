@@ -46,8 +46,8 @@ public:
 	int GetLimit();
 	int GetClientsNumber();
 	bool Gettopic_restriction() const;
-	bool getModeAtindex(size_t index);
-	bool clientInChannel(std::string &nick);
+	bool getModeAtindex(size_t index) const;
+	bool clientInChannel(const std::string &nick) const;
 	std::string GetTopicName();
 	std::string GetPassword();
 	std::string GetName();

@@ -21,5 +21,7 @@ std::string ft_trim(const std::string &str);
 // Function to split a string by a given delimiter
 std::vector<std::string> ft_split(std::string str, char delimiter);
 
+// Function to create a user identifier string in IRC format
+std::string user_id(const std::string &nickname, const std::string &username);
 
 #endif // UTILS_HPP

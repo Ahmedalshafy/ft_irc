@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabdelsa <mabdelsa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:45:13 by mahmoud           #+#    #+#             */
-/*   Updated: 2024/10/21 16:14:46 by mabdelsa         ###   ########.fr       */
+/*   Updated: 2025/01/30 15:05:26 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,6 +281,9 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
             else if (command == "PING") {
                 currentClient.getServerReplies().push_back(RPL_PONG(idFormat(currentClient.getNickname(), currentClient.getUsername()), params[0]));
             }
+            else if (command == "JOIN") {
+                handleJoinCommand(&currentClient, params);
+            }
             currentClient.sendRepliesToClient(&currentClient);
             currentClient.clearServerReplies();
 
@@ -288,6 +291,21 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
             newlinePos = currentClient.getPartialBuffer().find('\n');
         }
     }
+}
+
+bool Server::isChannelInServer(const std::string& channelName) const
+{
+    return channels.find(channelName) != channels.end();
+}
+
+const Channel& Server::getChannel(const std::string& channelName) const
+{
+    return channels.at(channelName);
+}
+
+const Channel& Server::getChannel(const std::string& channelName) const
+{
+    return channels.at(channelName);
 }
 
 void Server::cleanupClients(int clientCount, struct pollfd fds[]) {

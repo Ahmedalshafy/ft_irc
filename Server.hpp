@@ -34,6 +34,7 @@
 // #include "Client.hpp"
 
 class Client;
+class Channel;
 
 // MESSAGE FORMAT:
 # define idFormat(nickname, username) (":" + nickname + "!" + username + "@localhost")
@@ -76,6 +77,16 @@ class Client;
 
 #define RPL_ENDOFMOTD(client) (":localhost 376 " + client + " :End of /MOTD command.\r\n")
 
+#define ERR_USERONCHANNEL(username, nickname, channel) (":localhost 443 " + username + " " + nickname + " " + channel + " :is already on channel\r\n")
+#define ERR_CHANNELISFULL(client, channel) (":localhost 471 " + client + " " + channel + " :Cannot join channel (+l)\r\n")
+#define ERR_INVITEONLYCHAN(client, channel) (":localhost 473 " + client + " " + channel + " :Cannot join channel (+i)\r\n")
+#define ERR_BADCHANNELKEY(client, channel) (":localhost 475 " + client + " " + channel + " :Cannot join channel (+k)\r\n")
+#define RPL_JOIN(idFormat, channel) (idFormat + " JOIN " + channel + "\r\n")
+#define RPL_TOPIC(client, channel, topic) (":localhost 332 " + client + " " + channel + " :" + topic + "\r\n")
+#define RPL_NOTOPIC(client, channel) (":localhost 331 " + client + " " + channel + " :No topic is set\r\n")
+#define RPL_NAMREPLY(client, channel, users) (":localhost 353 " + client + " = " + channel + " :" + users + "\r\n")
+#define RPL_ENDOFNAMES(client, channel) (":localhost 366 " + client + " " + channel + " :End of /NAMES list.\r\n")
+
 #define MAX_CLIENTS 100
 
 class Server {
@@ -89,14 +100,23 @@ private:
     std::string serverPassword;
     volatile sig_atomic_t running;
     std::string serverStartTime;
+    std::map<std::string, Channel> channels;  // Map to store channels
 
+    // Socket and client handling
     void setupSocket();
     void acceptClient(int &clientCount, std::map<int, Client> &clients, struct pollfd fds[]);
-    void handleClientInput(int i, int &clientCount, std::map<int, Client> &clients, struct pollfd fds[], std::string serverStartTime) ;
+    void handleClientInput(int i, int &clientCount, std::map<int, Client> &clients, struct pollfd fds[], std::string serverStartTime);
     void removeClientFD(int i, int &clientCount, std::map<int, Client> &clients, struct pollfd fds[]);
     void cleanupClients(int clientCount, struct pollfd fds[]);
     std::string getCurrentDateTime();
 
+    // Channel management functions
+    bool isChannelInServer(const std::string& channelName) const;
+    Channel& getChannel(const std::string& channelName);
+    const Channel& getChannel(const std::string& channelName) const;
+
+    // Command handlers
+    void handleJoinCommand(Client *client, const std::vector<std::string> &params);
 };
 
 #endif // SERVER_HPP
