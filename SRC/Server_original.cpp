@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
+/*   By: aalshafy <aalshafy@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:45:13 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/01/30 15:05:26 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/04 14:37:50 by aalshafy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include "Utils.hpp"
+#include "Channel.hpp"
 
 Server::Server(int port, const std::string& password) 
     : port(port), serverPassword(password), running(1) {
@@ -279,7 +280,7 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
                 }
             } 
             else if (command == "PING") {
-                currentClient.getServerReplies().push_back(RPL_PONG(idFormat(currentClient.getNickname(), currentClient.getUsername()), params[0]));
+                currentClient.getServerReplies().push_back(RPL_PONG(user_id(currentClient.getNickname(), currentClient.getUsername()), params[0]));
             }
             else if (command == "JOIN") {
                 handleJoinCommand(&currentClient, params);
@@ -313,4 +314,42 @@ void Server::cleanupClients(int clientCount, struct pollfd fds[]) {
         close(fds[i].fd);
     }
     close(listenSocket);
+}
+
+void Server::addChannel(const std::string& channelName, Channel &channel) {
+    if (isChannelInServer(channelName))
+        return;
+    channels.insert(std::make_pair(channelName, channel));
+}
+
+void Server::removeChannel(const std::string& channelName) {
+    channels.erase(channelName);
+}
+
+
+Client	*Server::getClient(std::string nickname)
+{
+    std::map<int, Client*>::iterator it;
+	
+    for (it = clients.begin(); it != clients.end(); ++it) {
+        Client* client = it->second;
+        if (client->getNickname() == nickname) 
+		{
+            return client;
+        }
+    }
+    return NULL;
+}
+bool Server::isUserInServer(const std::string &nickname)
+{
+    std::map<int, Client*>::iterator it;
+    
+    for (it = clients.begin(); it != clients.end(); ++it) {
+        Client* client = it->second;
+        if (client->getNickname() == nickname) 
+        {
+            return true;
+        }
+    }
+    return false;
 }

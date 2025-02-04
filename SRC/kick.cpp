@@ -1,14 +1,13 @@
-# include "Client.hpp"
-# include "Server.hpp"
-# include "Utils.hpp"
-# include "Channels.hpp"
-# include "NumericReplies.hpp"
-# include <sstream>
+#include "../Includes/Client.hpp"
+#include "../Includes/Server.hpp"
 
-void Server::handleKickCommand(Client *client, const std::vector<std::string> &params)
+
+void Server::handelKickCommand(Client *client, const ParseMessage &ParsedMsg)
 {
+    std::vector<std::string> params = ParsedMsg.getParams();
+
     if (params.size() < 2) {
-        client->addInServerReplies(ERR_NEEDMOREPARAMS(client->getNickname(), "KICK"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "KICK"));
         return;
     }
 
@@ -17,18 +16,18 @@ void Server::handleKickCommand(Client *client, const std::vector<std::string> &p
 
 
     if (!isChannelInServer(channelName)) {
-        client->addInServerReplies(ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
+        client->serverReplies.push_back(ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
         return;
     }
     Channel &channel = getChannel(channelName);
 
     if (!channel.isClientInChannel(client->getNickname())) {
-        client->addInServerReplies(ERR_NOTONCHANNEL(client->getNickname(), channelName));
+        client->serverReplies.push_back(ERR_NOTONCHANNEL(client->getNickname(), channelName));
         return;
     }
 
     if (!channel.isOperator(client->getNickname())) {
-        client->addInServerReplies(ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
+        client->serverReplies.push_back(ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
         return;
     }
 
@@ -39,22 +38,22 @@ void Server::handleKickCommand(Client *client, const std::vector<std::string> &p
         std::string targetNick = *it;
         // Check if the client is trying to kick themselves
         if (targetNick == client->getNickname()) {
-            client->addInServerReplies(": localhost  482 " + client->getNickname() + " " + channelName + " :You can't kick yourself\r\n");
+            client->serverReplies.push_back(": localhost  482 " + client->getNickname() + " " + channelName + " :You can't kick yourself\r\n");
             continue;
         }
         Client *targetClient = getClient(targetNick);
 
         if (!targetClient || !channel.isClientInChannel(targetNick)) {
-            client->addInServerReplies(ERR_USERNOTINCHANNEL(client->getNickname(), targetNick, channelName));
+            client->serverReplies.push_back(ERR_USERNOTINCHANNEL(client->getNickname(), targetNick, channelName));
             continue;
         }
 
         std::string kickMsg = RPL_KICK(user_id(client->getNickname(), client->getUsername()), channelName, targetClient->getNickname(), trailingMessage);
-        channel.sendTo_all(kickMsg);
-        channel.remove(targetClient);
+        channel.broadcastMessage(kickMsg);
+        channel.removeClient(targetClient);
 
         if (channel.getUsers().empty()) {
-            channels.erase(channelName);
+            _channels.erase(channelName);
         }
     }
 }
