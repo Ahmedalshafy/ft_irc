@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   ParseMessage.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalshafy <aalshafy@student.42abudhabi.a    +#+  +:+       +#+        */
+/*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 18:20:06 by alsaeed           #+#    #+#             */
-/*   Updated: 2025/02/04 17:00:39 by aalshafy         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:36:36 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #ifndef PARSEMESG_HPP
 #define PARSEMESG_HPP
+
+#include <string>
+#include <vector>
 class ParseMessage {
 
 	private:
@@ -31,7 +34,7 @@ class ParseMessage {
 
 		void 						displayCommand(  const ParseMessage &parsedMessage ) const;
 		bool						isValid( const std::string &param ) const;
-		std::string					ft_trim( const std::string &str ) const;
+		// std::string					ft_trim( const std::string &str ) const;
 
 		int							getMsgLen( void ) const { return _msgLen; }
 		std::string					getMsg( void ) const { return _msg; }

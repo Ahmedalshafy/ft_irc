@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 21:02:31 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 10:31:41 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/08 13:38:32 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../Includes/Utils.hpp"
 
 // Function to trim whitespace
-std::string ft_trim(std::string text)
+std::string ft_trim(std::string &text)
 {
     std::size_t first = text.find_first_not_of(" \n\r\t");
     std::size_t last = text.find_last_not_of(" \n\r\t");

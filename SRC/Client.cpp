@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabdelsa <mabdelsa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:33:26 by mahmoud           #+#    #+#             */
-/*   Updated: 2024/10/21 15:23:31 by mabdelsa         ###   ########.fr       */
+/*   Updated: 2025/02/08 12:45:31 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "../Includes/Client.hpp"
 
 // Default constructor
 Client::Client()
@@ -76,7 +76,7 @@ void Client::printClientMessages(Client *client) {
 
 void Client::disconnectClient(Client *client) {
     client->getServerReplies().push_back(ERR_PASSWDMISMATCH(std::string("ircserv")));
-    client->getServerReplies().push_back(ERROR_MESSAGE(std::string("Password incorrect. Closing connection.")));
+    client->getServerReplies().push_back(ERR_PASSWDMISMATCH(std::string("ircserv")));
 
 
     std::cout << "Client " << client->getClientNumber() << " disconnected.\n";

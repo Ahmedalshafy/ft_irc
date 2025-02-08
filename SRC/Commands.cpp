@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabdelsa <mabdelsa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 13:36:54 by mabdelsa          #+#    #+#             */
-/*   Updated: 2024/10/21 15:34:37 by mabdelsa         ###   ########.fr       */
+/*   Updated: 2025/02/08 12:50:39 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
-#include "Utils.hpp"
-#include "Server.hpp"
+#include "../Includes/Client.hpp"
+#include "../Includes/Utils.hpp"
+#include "../Includes/Server.hpp"
 
 // Sends the Message of the Day (MOTD) to the client after they register.
 // This function checks if the client is registered and then proceeds to read 

@@ -259,9 +259,9 @@ void Channel::sendToOthers(Client *client, std::string message)
     std::map<std::string, Client *>::iterator it;
     for (it = users.begin(); it != users.end(); ++it)
     {
-        if (it->second->getFd() != -1 && it->second != client)
+        if (it->second->getSocket() != -1 && it->second != client)
         {
-            it->second->serverReplies.push_back(message);
+            it->second->getServerReplies().push_back(message);
         }
     }
 }
@@ -387,7 +387,7 @@ std::string Channel::getTopic() const
  * @brief Remove an invitation from the channel
  * @param invite Nickname of the client to remove from invite list
  */
-void Channel::removeInvite(std::string &invite)
+void Channel::removeInvite(const std::string &invite)
 {
     std::map<std::string, Client*>::iterator invite_itr = this->inviteList.find(invite);
     if (invite_itr != this->inviteList.end())
@@ -419,16 +419,16 @@ void Channel::removeClient(Client *client)
  * @param text String to trim
  * @return std::string Trimmed string
  */
-std::string ft_trim(std::string text)
-{
-    std::size_t first = text.find_first_not_of(" \n\r\t");
-    std::size_t last = text.find_last_not_of(" \n\r\t");
+// std::string ft_trim(std::string text)
+// {
+//     std::size_t first = text.find_first_not_of(" \n\r\t");
+//     std::size_t last = text.find_last_not_of(" \n\r\t");
 
-    if (first == std::string::npos || last == std::string::npos) {
-        return "";
-    }
-    return text.substr(first, (last - first + 1));
-}
+//     if (first == std::string::npos || last == std::string::npos) {
+//         return "";
+//     }
+//     return text.substr(first, (last - first + 1));
+// }
 
 /**
  * @brief Add a channel to the server

@@ -35,32 +35,32 @@ std::string ParseMessage::ft_trim(const std::string &str) const {
  * Splits a string into parts based on a delimiter character,
  * ignoring empty parts between consecutive delimiters
  */
-std::vector<std::string> ft_split(std::string str, char delimiter)
-{
-    std::vector<std::string> result;
-    std::string word;
+// std::vector<std::string> ft_split(std::string str, char delimiter)
+// {
+//     std::vector<std::string> result;
+//     std::string word;
     
-    for (std::size_t i = 0; i < str.length(); ++i)
-    {
-        if(str[i] != delimiter)
-        {
-            word += str[i];
-        }
-        else
-        {
-            if(!word.empty())
-            {
-                result.push_back(word);
-                word.clear();
-            }
-        }
-    }
-    if(!word.empty())
-    {
-        result.push_back(word);
-    }
-    return result;
-}
+//     for (std::size_t i = 0; i < str.length(); ++i)
+//     {
+//         if(str[i] != delimiter)
+//         {
+//             word += str[i];
+//         }
+//         else
+//         {
+//             if(!word.empty())
+//             {
+//                 result.push_back(word);
+//                 word.clear();
+//             }
+//         }
+//     }
+//     if(!word.empty())
+//     {
+//         result.push_back(word);
+//     }
+//     return result;
+// }
 
 /**
  * @brief Process and split a string by spaces, handling IRC message format
@@ -202,11 +202,11 @@ bool ParseMessage::isValid(const std::string &param) const {
  * 
  * Used for validating nicknames, channel names, and other identifiers
  */
-bool Server::isAlphanumeric(const std::string &str) {
-    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
-        if (!std::isalnum(static_cast<unsigned char>(*it))) {
-            return false;
-        }
-    }
-    return true;
-}
+// bool isAlphanumeric(const std::string &str) {
+//     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+//         if (!std::isalnum(static_cast<unsigned char>(*it))) {
+//             return false;
+//         }
+//     }
+//     return true;
+// }

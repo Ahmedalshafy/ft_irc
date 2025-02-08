@@ -42,7 +42,7 @@ void Server::joinCommand(Client *client, const ParseMessage &ParsedMsg)
     if(params.size() > 2) {return ;};  // Maximum of channels and keys lists
     if(params.size() < 1)
     {
-        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "JOIN"));
+        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "JOIN"));
         return;
     }
 
@@ -113,7 +113,7 @@ void Server::joinCommand(Client *client, const ParseMessage &ParsedMsg)
                 tempChannel.addClient(client);
                 response = greetJoinedUser(*client, tempChannel);
             }
-            client->serverReplies.push_back(response);
+            client->getServerReplies().push_back(response);
             break;
         }
         // Create new channel
@@ -122,7 +122,7 @@ void Server::joinCommand(Client *client, const ParseMessage &ParsedMsg)
             response = RPL_JOIN(user_id(client->getNickname(), client->getUsername()), chanName);
             _channels.insert(make_pair(chanName, Channel(chanName, client)));
             response = greetJoinedUser(*client, getChannel(chanName));
-            client->serverReplies.push_back(response);
+            client->getServerReplies().push_back(response);
         }
     }
 }

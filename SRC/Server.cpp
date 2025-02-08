@@ -6,14 +6,14 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:45:13 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 11:31:36 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/08 12:21:58 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../Includes/Server.hpp"
-#include "Client.hpp"
-#include "Utils.hpp"
+#include "../Includes/Client.hpp"
+#include "../Includes/Utils.hpp"
 
 Server::Server(int port, const std::string& password) 
     : port(port), serverPassword(password), running(1) {

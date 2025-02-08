@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:26:34 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 11:32:23 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/08 12:50:08 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@
 // #include "Client.hpp"
 
 class Client;
+class Channel;
 
 // MESSAGE FORMAT:
 #define idFormat(nickname, username) (":" + nickname + "!" + username + "@localhost")
@@ -104,26 +105,26 @@ private:
     std::map<std::string, Channel> _channels;
     // add a map of clients
     std::map<int, Client> *serverClients;
-    Client* Server::getClient(std::string nickname);
-    bool Server::isUserInServer(std::string nickname);
+    Client* getClient(std::string nickname);
+    bool isUserInServer(std::string nickname);
     
     void run();
 
 
     // Commands
-    bool        Server::isValidIRCCommand(const std::string& command);
-	void        Server::processUserCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::quitCommand(std::string reason, Client *client);
-    void        Server::joinCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::privateMessage(Client *client, const ParseMessage &ParsedMsg);
-	void        Server::handelModeCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::handleInviteCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::topicCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::partCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::handelKickCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::motdCommand(Client *client);
-	void        Server::noticeCommand(Client *client, const ParseMessage& parsedMsg);
-	void        Server::handleCapCommand(Client *client, const std::vector<std::string> &params);
+    bool isValidIRCCommand(const std::string& command);
+	void processUserCommand(Client *client, const ParseMessage& parsedMsg);
+	void quitCommand(std::string reason, Client *client);
+    void joinCommand(Client *client, const ParseMessage& parsedMsg);
+	void privateMessage(Client *client, const ParseMessage &ParsedMsg);
+	void handelModeCommand(Client *client, const ParseMessage& parsedMsg);
+	void handleInviteCommand(Client *client, const ParseMessage& parsedMsg);
+	void topicCommand(Client *client, const ParseMessage& parsedMsg);
+	void partCommand(Client *client, const ParseMessage& parsedMsg);
+	void handelKickCommand(Client *client, const ParseMessage& parsedMsg);
+	void motdCommand(Client *client);
+	void noticeCommand(Client *client, const ParseMessage& parsedMsg);
+	void handleCapCommand(Client *client, const std::vector<std::string> &params);
     
     //Channels
 		void 			addChannel(Channel &channel);

@@ -1,12 +1,15 @@
-
 #pragma once
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
 #include "./Client.hpp"
+#include "Client.hpp"
 #include <sstream>
 #include <sys/socket.h>
 #include "Utils.hpp"
+#include <map>
+
+class Client;
 
 
 class Channel 
@@ -36,7 +39,7 @@ class Channel
 
 		//REMOVE FUNCTIONS
 		void removeClient(Client *client);
-		void removeInvite(std::string &invite);
+		void removeInvite(const std::string &invite);
 		void removeOperator(std::string nickname);
 		void removeKey();
 		void removeUserLimit();

@@ -3,15 +3,14 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: aalshafy <aalshafy@student.42abudhabi.a    +#+  +:+       +#+         #
+#    By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/05 23:41:54 by alsaeed           #+#    #+#              #
-#    Updated: 2025/02/04 17:56:25 by aalshafy         ###   ########.fr        #
+#    Updated: 2025/02/08 13:29:22 by ahmed            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ircserv
-NAME_BONUS = ircserv_bonus
 
 CXX = c++
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98 #-g3 -fsanitize=address
@@ -21,7 +20,6 @@ SRCS =  Server.cpp \
         Channel.cpp \
         Client.cpp \
         ParseMessage.cpp \
-        nickCommand.cpp \
         quit.cpp \
         join.cpp  \
         privateMessage.cpp \
@@ -32,7 +30,8 @@ SRCS =  Server.cpp \
         motdCommand.cpp \
         noticeCommand.cpp \
         partCommand.cpp \
-        topicCommand.cpp
+        topicCommand.cpp \
+		Utils.cpp
 
 OBJS_DIR = object_files
 OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
