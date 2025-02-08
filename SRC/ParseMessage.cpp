@@ -15,7 +15,7 @@
  * 
  * Removes leading and trailing whitespace (space, newline, carriage return, tab)
  */
-std::string ParseMessage::ft_trim(const std::string &str) const {
+std::string ParseMessage::ft_trim_all(const std::string &str) const {
     std::size_t start = str.find_first_not_of(" \n\r\t");
     std::size_t end = str.find_last_not_of(" \n\r\t");
 
@@ -127,7 +127,7 @@ ParseMessage::ParseMessage(const std::string& message)
     _trailing = "";
     _notValidParam = false;
     _errorMsg = "";
-    std::string trimmedMsg = ft_trim(message);
+    std::string trimmedMsg = ft_trim_all(message);
     std::string token;
     std::istringstream iss(trimmedMsg);
     bool tagFlag = false;
@@ -159,7 +159,7 @@ ParseMessage::ParseMessage(const std::string& message)
 
         if (token[0] == ':') {
             
-            _trailing = ft_trim(message.substr(message.find(token) + 1)); 
+            _trailing = ft_trim_all(message.substr(message.find(token) + 1)); 
             break;
         } else {
     
