@@ -53,7 +53,8 @@ public:
     void disconnectClient(Client *client);
     void printClientMessages(Client *client);
     void sendRepliesToClient(Client *client);
-    void addInServerReplies(const std::string &reply); // Added for JOIN command
+
+    
 
     // Getter methods
     int getSocket() const;

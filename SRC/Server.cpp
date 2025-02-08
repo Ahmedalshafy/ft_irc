@@ -6,12 +6,12 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:45:13 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/01/30 15:05:26 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/08 11:31:36 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-#include "Server.hpp"
+#include "../Includes/Server.hpp"
 #include "Client.hpp"
 #include "Utils.hpp"
 
@@ -89,9 +89,10 @@ void Server::setupSocket() {
 // continues until a shutdown signal is received. After exiting the loop, it 
 // cleans up by closing all client connections and freeing any resources.
 void Server::run() {
+    std::map<int, Client> clients;
+    this->serverClients = &clients;
     serverStartTime = getCurrentDateTime();
     setupSocket();
-    std::map<int, Client> clients;
     struct pollfd fds[MAX_CLIENTS];
     memset(fds, 0, sizeof(fds));
     int clientCount = 1;
@@ -222,11 +223,14 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
 
             currentClient.getClientMessages().push_back(completeMessage);
 
-            std::vector<std::string> tokens = ft_split(completeMessage, ' ');
-            if (tokens.empty()) continue;
+            // USe the ParseMessage class to parse the complete message
+            ParseMessage parsMsg(completeMessage);
 
-            std::string command = tokens[0];
-            std::vector<std::string> params(tokens.begin() + 1, tokens.end());
+            // std::vector<std::string> tokens = ft_split(completeMessage, ' ');
+            // if (tokens.empty()) continue;
+
+            std::string command =  parsMsg.getCmd();
+            std::vector<std::string> params = parsMsg.getParams();
 
             // Debugging output
             currentClient.printClientMessages(&currentClient);
@@ -281,8 +285,8 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
             else if (command == "PING") {
                 currentClient.getServerReplies().push_back(RPL_PONG(idFormat(currentClient.getNickname(), currentClient.getUsername()), params[0]));
             }
-            else if (command == "JOIN") {
-                handleJoinCommand(&currentClient, params);
+            else {
+                processUserCommand(&currentClient, parsMsg);
             }
             currentClient.sendRepliesToClient(&currentClient);
             currentClient.clearServerReplies();
@@ -293,24 +297,115 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
     }
 }
 
-bool Server::isChannelInServer(const std::string& channelName) const
-{
-    return channels.find(channelName) != channels.end();
-}
-
-const Channel& Server::getChannel(const std::string& channelName) const
-{
-    return channels.at(channelName);
-}
-
-const Channel& Server::getChannel(const std::string& channelName) const
-{
-    return channels.at(channelName);
-}
-
 void Server::cleanupClients(int clientCount, struct pollfd fds[]) {
     for (int i = 1; i < clientCount; i++) {
         close(fds[i].fd);
     }
     close(listenSocket);
+}
+
+void Server::processUserCommand(Client *client, const ParseMessage &parsedMsg)
+{
+	std::string command;
+	
+	std::vector<std::string> params;
+	if(parsedMsg.getCmd().empty() == true) //check if it is empty 
+	{
+		return;
+	}
+	// displayCommand(parsedMsg);
+	command = parsedMsg.getCmd();
+	params = parsedMsg.getParams();
+	if(params.size() < 1 && parsedMsg.getTrailing().empty() == true && command != "QUIT" && command != "motd")
+	{            std::string command = parsedMsg.getCmd();
+
+		 client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(std::string("ircserver") ,command));
+		 return;
+	}
+	if(isValidIRCCommand(parsedMsg.getCmd()) == false)
+	{
+		client->getServerReplies().push_back(ERR_UNKNOWNCOMMAND(std::string("ircserver"), parsedMsg.getCmd()));
+		return;
+	}
+	if (command == "QUIT")
+		quitCommand(parsedMsg.getTrailing(), client);
+    // Need confirnation from Mahmoud if it handeled correctly
+	// if( client->getIsRegistered() == false || client->getRegisterSteps(2) == false )
+	// {
+	// 	connectUser(client, parsedMsg);	
+	// }
+	else if ( client->getIsRegistered() == true && client->getRegisterSteps(2) == true )
+	{
+		if (command == "JOIN")
+		{
+			joinCommand(client, parsedMsg);
+		}
+		else if(command == "PRIVMSG")
+		{
+			privateMessage(client, parsedMsg);	
+		}
+		else if (command == "MODE")
+		{
+			handelModeCommand(client, parsedMsg);
+		}
+		else if(command == "TOPIC")
+		{
+			topicCommand(client, parsedMsg);
+		}
+		else if(command == "KICK")
+		{
+			handelKickCommand(client, parsedMsg);
+		}
+		else if(command == "INVITE")
+		{
+			handleInviteCommand(client, parsedMsg);
+		}
+		else if(command == "motd")
+		{
+			motdCommand(client);
+		}
+		else if(command == "PART")
+		{
+			partCommand(client, parsedMsg);
+		}
+		else if(command == "NOTICE")
+		{
+			noticeCommand(client, parsedMsg);
+		}
+	}
+	return;
+}
+
+bool Server::isValidIRCCommand(const std::string& command) 
+{
+    static const char* validCommands[] = {
+        "JOIN", "MODE", "TOPIC", "NICK", "QUIT", "PRIVMSG", "KICK",
+        "INVITE", "PING", "motd", "CAP", "PASS", "USER", "PART", "WHO", "NOTICE", "WHOIS", 0
+    };
+
+    for (const char** cmd = validCommands; *cmd; ++cmd) {
+        if (command == *cmd) 
+			return true;
+    }
+    return false;
+}
+
+Client* Server::getClient(std::string nickname) {
+    std::map<int, Client>::iterator it;
+    for (it = serverClients->begin(); it != serverClients->end(); ++it) {
+        if (it->second.getNickname() == nickname) {
+            return &(it->second);
+        }
+    }
+    return NULL;
+}
+
+bool Server::isUserInServer(std::string nickname) {
+    std::map<int, Client>::iterator it;
+    for (it = serverClients->begin(); it != serverClients->end(); ++it) {
+        if (it->second.getNickname() == nickname) {
+            return true;
+        }
+    }
+    return false;
 }

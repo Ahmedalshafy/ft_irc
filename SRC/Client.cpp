@@ -118,7 +118,3 @@ void Client::setRegisterSteps(int index, bool reg) { registerSteps[index] = reg;
 void Client::setPartialBuffer(const std::string &buffer) { partialBuffer = buffer; }
 void Client::addRequestedCapability(const std::string &capability) { requestedCapabilities.insert(capability); }
 
-void Client::addInServerReplies(const std::string &reply)
-{
-    serverReplies.push_back(reply);
-}
