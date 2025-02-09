@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:29:32 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 12:24:05 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/09 10:59:37 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ private:
     std::string username; // Client username
     std::string realName; // Client real name
     std::vector<std::string> clientMessages; // Messages received from client
-    std::vector<std::string> serverReplies; // Messages to send to client
     std::set<std::string> requestedCapabilities;
     bool registerSteps[3]; // Registration steps
     std::string partialBuffer; //accept messages till new line is found
@@ -44,6 +43,7 @@ public:
     ~Client();
     // Parameterized constructor
     Client(int socket, int clientNumber);
+    std::vector<std::string> serverReplies; // Messages to send to client
 
     void handleNickCommand(Client *client, const std::vector<std::string> &params, std::vector<std::string>& nicknames);
     void MOTD(Client *client, std::string serverStartTime);

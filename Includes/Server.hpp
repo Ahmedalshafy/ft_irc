@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:26:34 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 12:50:08 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/09 12:32:02 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,15 @@ private:
     
     void run();
 
+	void sendToClient( int client_fd );
+	void closeClient( int client_fd );
+	
+	void connectUser(Client *client, const ParseMessage &parsedMsg, std::vector<std::string> nicknames);
+	void disconnectUser(Client *client, const std::string& reason);
 
     // Commands
     bool isValidIRCCommand(const std::string& command);
-	void processUserCommand(Client *client, const ParseMessage& parsedMsg);
+	void processUserCommand(Client *client, const ParseMessage& parsedMsg, std::vector<std::string> nicknames);
 	void quitCommand(std::string reason, Client *client);
     void joinCommand(Client *client, const ParseMessage& parsedMsg);
 	void privateMessage(Client *client, const ParseMessage &ParsedMsg);
@@ -124,7 +129,6 @@ private:
 	void handelKickCommand(Client *client, const ParseMessage& parsedMsg);
 	void motdCommand(Client *client);
 	void noticeCommand(Client *client, const ParseMessage& parsedMsg);
-	void handleCapCommand(Client *client, const std::vector<std::string> &params);
     
     //Channels
 		void 			addChannel(Channel &channel);

@@ -35,7 +35,7 @@ void Server::handelKickCommand(Client *client, const ParseMessage &ParsedMsg)
 
     // Check for required parameters
     if (params.size() < 2) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "KICK"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "KICK"));
         return;
     }
 
@@ -45,20 +45,20 @@ void Server::handelKickCommand(Client *client, const ParseMessage &ParsedMsg)
 
     // Validate channel existence
     if (!isChannelInServer(channelName)) {
-        client->getServerReplies().push_back(ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
+        client->serverReplies.push_back(ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
         return;
     }
     Channel &channel = getChannel(channelName);
 
     // Check if kicker is in the channel
     if (!channel.isClientInChannel(client->getNickname())) {
-        client->getServerReplies().push_back(ERR_NOTONCHANNEL(client->getNickname(), channelName));
+        client->serverReplies.push_back(ERR_NOTONCHANNEL(client->getNickname(), channelName));
         return;
     }
 
     // Verify operator privileges
     if (!channel.isOperator(client->getNickname())) {
-        client->getServerReplies().push_back(ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
+        client->serverReplies.push_back(ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
         return;
     }
 
@@ -70,14 +70,14 @@ void Server::handelKickCommand(Client *client, const ParseMessage &ParsedMsg)
         
         // Prevent self-kick
         if (targetNick == client->getNickname()) {
-            client->getServerReplies().push_back(": localhost  482 " + client->getNickname() + " " + channelName + " :You can't kick yourself\r\n");
+            client->serverReplies.push_back(": localhost  482 " + client->getNickname() + " " + channelName + " :You can't kick yourself\r\n");
             continue;
         }
 
         // Validate target user
         Client *targetClient = getClient(targetNick);
         if (!targetClient || !channel.isClientInChannel(targetNick)) {
-            client->getServerReplies().push_back(ERR_USERNOTINCHANNEL(client->getNickname(), targetNick, channelName));
+            client->serverReplies.push_back(ERR_USERNOTINCHANNEL(client->getNickname(), targetNick, channelName));
             continue;
         }
 

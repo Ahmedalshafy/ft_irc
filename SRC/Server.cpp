@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:45:13 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 12:21:58 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/09 12:32:15 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,8 +114,22 @@ void Server::run() {
             } else if (fds[i].revents & POLLIN) {
                 handleClientInput(i, clientCount, clients, fds, serverStartTime);
             }
+            else if (fds[i].fd != listenSocket && fds[i].revents & POLLOUT ) {
+
+				sendToClient( fds[i].fd );
+                clients[i].sendRepliesToClient(&clients[i]);
+			}
+
+			if ( fds[i].fd == -1 ) {
+			
+				closeClient(fds[i].fd);
+			} else {
+				
+				i++;
+			}
+                
+            }
         }
-    }
 
     cleanupClients(clientCount, fds);
 }
@@ -141,7 +155,8 @@ void Server::acceptClient(int &clientCount, std::map<int, Client> &clients, stru
         if (clientCount < MAX_CLIENTS) {
             clients[clientSocket] = Client(clientSocket, clientCount);
             fds[clientCount].fd = clientSocket;
-            fds[clientCount].events = POLLIN;
+            fds[clientCount].events = POLLIN | POLLOUT;
+            fds[clientCount].revents = 0;
             std::cout << "Client " << clientCount << " connected.\n";
             clientCount++;
         } else {
@@ -286,7 +301,7 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
                 currentClient.getServerReplies().push_back(RPL_PONG(idFormat(currentClient.getNickname(), currentClient.getUsername()), params[0]));
             }
             else {
-                processUserCommand(&currentClient, parsMsg);
+                processUserCommand(&currentClient, parsMsg, nicknames);
             }
             currentClient.sendRepliesToClient(&currentClient);
             currentClient.clearServerReplies();
@@ -297,6 +312,34 @@ void Server::handleClientInput(int i, int &clientCount, std::map<int, Client> &c
     }
 }
 
+// void Server::handleClientMessage( int client_fd )
+// {
+
+// 	int bytesRecv = ft_recv( client_fd );
+	
+// 	if (bytesRecv <= 0) {
+
+// 		handleClientDisconnection(client_fd, bytesRecv);
+// 		return;
+// 	}
+// 	std::vector<std::string> commandList;
+// 	if (_message.empty() || (_message[_message.size() - 1] != '\n' && (_message.size() >= 2 && _message.substr(_message.size() - 2) != "\r\n"))) {
+// 		std::cerr << "Invalid message format from client " << client_fd << std::endl;
+// 		_message.clear();
+// 		return;
+// 	}
+// 	//split on newline using ft_split and return a vector of strings and loop through that and push to 
+// 	std::cout << "Received message from client " << _clients[client_fd]->getNickname() << ": " << _message << std::endl;
+// 	commandList = ft_split(_message, '\n');
+// 	for(std::size_t i = 0; i < commandList.size(); i++)
+// 	{
+// 		ParseMessage parsedMsg(commandList[i]);
+// 		processCommand( _clients[client_fd] , parsedMsg );
+// 	}
+// 	commandList.clear();
+// 	return;
+// }
+
 void Server::cleanupClients(int clientCount, struct pollfd fds[]) {
     for (int i = 1; i < clientCount; i++) {
         close(fds[i].fd);
@@ -304,7 +347,7 @@ void Server::cleanupClients(int clientCount, struct pollfd fds[]) {
     close(listenSocket);
 }
 
-void Server::processUserCommand(Client *client, const ParseMessage &parsedMsg)
+void Server::processUserCommand(Client *client, const ParseMessage &parsedMsg, std::vector<std::string> nicknames)
 {
 	std::string command;
 	
@@ -319,26 +362,27 @@ void Server::processUserCommand(Client *client, const ParseMessage &parsedMsg)
 	if(params.size() < 1 && parsedMsg.getTrailing().empty() == true && command != "QUIT" && command != "motd")
 	{            std::string command = parsedMsg.getCmd();
 
-		 client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(std::string("ircserver") ,command));
+		 client->serverReplies.push_back(ERR_NEEDMOREPARAMS(std::string("ircserver") ,command));
 		 return;
 	}
 	if(isValidIRCCommand(parsedMsg.getCmd()) == false)
 	{
-		client->getServerReplies().push_back(ERR_UNKNOWNCOMMAND(std::string("ircserver"), parsedMsg.getCmd()));
+		client->serverReplies.push_back(ERR_UNKNOWNCOMMAND(std::string("ircserver"), parsedMsg.getCmd()));
 		return;
 	}
 	if (command == "QUIT")
 		quitCommand(parsedMsg.getTrailing(), client);
     // Need confirnation from Mahmoud if it handeled correctly
-	// if( client->getIsRegistered() == false || client->getRegisterSteps(2) == false )
-	// {
-	// 	connectUser(client, parsedMsg);	
-	// }
+	if( client->getIsRegistered() == false || client->getRegisterSteps(2) == false )
+	{
+		connectUser(client, parsedMsg, nicknames);
+	}
 	else if ( client->getIsRegistered() == true && client->getRegisterSteps(2) == true )
 	{
 		if (command == "JOIN")
 		{
-			joinCommand(client, parsedMsg);
+			std::cout << "JOIN command received from " << client->getNickname() << std::endl;
+            joinCommand(client, parsedMsg);
 		}
 		else if(command == "PRIVMSG")
 		{
@@ -376,6 +420,45 @@ void Server::processUserCommand(Client *client, const ParseMessage &parsedMsg)
 	return;
 }
 
+void Server::connectUser(Client *client, const ParseMessage &parsedMsg, std::vector<std::string> nicknames)
+{
+    const std::string &command = parsedMsg.getCmd();
+    const std::vector<std::string> &params = parsedMsg.getParams();
+
+    if (command == "CAP")
+	{
+        client->handleCapCommand(client, params);
+    }
+    else if (client->getRegisterSteps(0) == true && command == "PASS") {
+
+        client->handlePassCommand(client, params, serverPassword);
+		if (client->getHasSentPass() == true) {
+			client->setRegisterSteps(1, true);
+		}
+    }
+	else if (client->getRegisterSteps(1) == true && (command == "USER" || command == "NICK"))
+	{
+		if (command == "USER") {
+
+            client->handleUserCommand(client, params);
+		}
+		else if (command == "NICK") {
+
+            client->handleNickCommand(client, params, nicknames);
+		}
+
+		if (client->getUsername() != "" && client->getNickname() != "") {
+
+			client->setRegisterSteps(2, true);
+		}
+	}
+	if ( client->getIsRegistered() == true && client->getRegisterSteps(2) == true )
+	{
+		motdCommand(client);
+	}
+    return ;
+}
+
 bool Server::isValidIRCCommand(const std::string& command) 
 {
     static const char* validCommands[] = {
@@ -408,4 +491,48 @@ bool Server::isUserInServer(std::string nickname) {
         }
     }
     return false;
+}
+
+void Server::sendToClient( int client_fd )
+{
+	Client& client = (*serverClients)[client_fd];
+	std::vector<std::string>::iterator it = client.serverReplies.begin();
+
+	for ( ; it != client.serverReplies.end(); ++it ) {
+
+		std::cout << "............................................" << std::endl;
+		std::cout << "Sending message to client " << client.getNickname() << ": " << *it << std::endl;
+		std::cout << "............................................" << std::endl;
+		if ( send( client_fd, it->c_str(), it->size(), 0 ) == -1 )
+		{
+			std::cerr << "Error sending message to client " << client.getNickname() << " (" << strerror(errno) << ")" << std::endl;
+			return;
+		}
+	}
+
+	client.serverReplies.clear();
+
+	return;
+}
+
+void Server::closeClient( int client_fd ) {
+
+	std::map<int, Client>::iterator it = serverClients->find(client_fd);
+	if (it != serverClients->end()) {
+
+		close(client_fd);
+		// delete it->second;
+		serverClients->erase(it);
+	}
+
+	// for ( std::vector<pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
+
+	// 	if ( it->fd == client_fd ) {
+
+	// 		it = _fds.erase(it);
+	// 	} else {
+
+	// 		++it;
+	// 	}
+	// }
 }

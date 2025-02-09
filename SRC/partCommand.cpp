@@ -6,7 +6,7 @@ void Server::partCommand(Client *client, const ParseMessage &ParsedMsg)
     std::string response = "";
 
     if (params.empty()) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "PART"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "PART"));
         return;
     }
 
@@ -35,10 +35,10 @@ void Server::partCommand(Client *client, const ParseMessage &ParsedMsg)
 				{
                     _channels.erase(chanName);
                 }
-                client->getServerReplies().push_back(partMsg);
+                client->serverReplies.push_back(partMsg);
                 continue;
             }
         }
-        client->getServerReplies().push_back(response);
+        client->serverReplies.push_back(response);
     }
 }

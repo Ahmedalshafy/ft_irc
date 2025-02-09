@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:33:26 by mahmoud           #+#    #+#             */
-/*   Updated: 2025/02/08 12:45:31 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/09 11:32:09 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ void Client::sendRepliesToClient(Client *client)
         return; // Socket is closed, do not attempt to send
     }
 
-    for (std::vector<std::string>::size_type j = 0; j < client->getServerReplies().size(); ++j) {
-    ssize_t bytesSent = send(client->getSocket(), client->getServerReplies()[j].c_str(), client->getServerReplies()[j].length(), 0);
-    std::cout << "server sent to client: " + client->getServerReplies()[j];;
+    for (std::vector<std::string>::size_type j = 0; j < client->serverReplies.size(); ++j) {
+    ssize_t bytesSent = send(client->getSocket(), client->serverReplies[j].c_str(), client->serverReplies[j].length(), 0);
+    std::cout << "server sent to client: " + client->serverReplies[j];
 
     // Handle potential errors
     if (bytesSent < 0) {
@@ -75,8 +75,8 @@ void Client::printClientMessages(Client *client) {
 }
 
 void Client::disconnectClient(Client *client) {
-    client->getServerReplies().push_back(ERR_PASSWDMISMATCH(std::string("ircserv")));
-    client->getServerReplies().push_back(ERR_PASSWDMISMATCH(std::string("ircserv")));
+    client->serverReplies.push_back(ERR_PASSWDMISMATCH(std::string("ircserv")));
+    client->serverReplies.push_back(ERR_PASSWDMISMATCH(std::string("ircserv")));
 
 
     std::cout << "Client " << client->getClientNumber() << " disconnected.\n";

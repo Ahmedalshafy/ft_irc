@@ -42,9 +42,9 @@ void Server::privateMessage(Client *client, const ParseMessage &parsedMsg)
     if (params.empty() || trailing.empty())
     {
         if (params.empty())
-            client->getServerReplies().push_back(ERR_NORECIPIENT(client->getNickname()));
+            client->serverReplies.push_back(ERR_NORECIPIENT(client->getNickname()));
         else
-            client->getServerReplies().push_back(ERR_NOTEXTTOSEND(client->getNickname()));
+            client->serverReplies.push_back(ERR_NOTEXTTOSEND(client->getNickname()));
         return;
     }
 
@@ -59,7 +59,7 @@ void Server::privateMessage(Client *client, const ParseMessage &parsedMsg)
         // Validate channel exists
         if (!isChannelInServer(receiver))
         {
-            client->getServerReplies().push_back(ERR_CANNOTSENDTOCHAN(client->getNickname(), receiver));
+            client->serverReplies.push_back(ERR_CANNOTSENDTOCHAN(client->getNickname(), receiver));
             return;
         }
 
@@ -68,7 +68,7 @@ void Server::privateMessage(Client *client, const ParseMessage &parsedMsg)
         // Check if sender is in channel
         if (!channel.isClientInChannel(client->getNickname()))
         {
-            client->getServerReplies().push_back(ERR_CANNOTSENDTOCHAN(client->getNickname(), receiver));
+            client->serverReplies.push_back(ERR_CANNOTSENDTOCHAN(client->getNickname(), receiver));
             return;
         }
         // Broadcast message to all channel members except sender
@@ -80,11 +80,11 @@ void Server::privateMessage(Client *client, const ParseMessage &parsedMsg)
         // Validate target user exists
         if (!isUserInServer(receiver))
         {
-            client->getServerReplies().push_back(ERR_NOSUCHNICK(client->getNickname(), receiver));
+            client->serverReplies.push_back(ERR_NOSUCHNICK(client->getNickname(), receiver));
             return;
         }
         // Send private message to recipient
         Client *recipientClient = getClient(receiver);
-        recipientClient->getServerReplies().push_back(RPL_PRIVMSG(client->getNickname(), client->getUsername(), receiver, trailing));
+        recipientClient->serverReplies.push_back(RPL_PRIVMSG(client->getNickname(), client->getUsername(), receiver, trailing));
     }
 }

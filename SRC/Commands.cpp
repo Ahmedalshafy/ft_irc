@@ -6,7 +6,7 @@
 /*   By: ahmed <ahmed@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 13:36:54 by mabdelsa          #+#    #+#             */
-/*   Updated: 2025/02/08 12:50:39 by ahmed            ###   ########.fr       */
+/*   Updated: 2025/02/09 11:02:29 by ahmed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,38 +41,38 @@ void Client::MOTD(Client *client, std::string serverStartTime) {
     
     // Add welcome messages to the server replies for the client
     // RPL_WELCOME: Sent when the client connects successfully, greeting them.
-    client->getServerReplies().push_back(RPL_WELCOME(idFormat(client->getNickname(), client->getUsername()), client->getNickname()));
+    client->serverReplies.push_back(RPL_WELCOME(idFormat(client->getNickname(), client->getUsername()), client->getNickname()));
 
     // RPL_YOURHOST: Provides the client with the server's name and version.
-    client->getServerReplies().push_back(RPL_YOURHOST(client->getUsername(), "ircserv", "1"));
+    client->serverReplies.push_back(RPL_YOURHOST(client->getUsername(), "ircserv", "1"));
 
     // RPL_CREATED: Indicates when the server was created, includes the server start time.
-    client->getServerReplies().push_back(RPL_CREATED(client->getUsername(), serverStartTime));
+    client->serverReplies.push_back(RPL_CREATED(client->getUsername(), serverStartTime));
 
     // RPL_MYINFO: Provides information about the server, including capabilities.
-    client->getServerReplies().push_back(RPL_MYINFO(client->getUsername(), "irssi", "1", "", "", ""));
+    client->serverReplies.push_back(RPL_MYINFO(client->getUsername(), "irssi", "1", "", "", ""));
 
     // RPL_ISUPPORT: Informs the client of specific server capabilities and features.
-    client->getServerReplies().push_back(RPL_ISUPPORT(client->getUsername(), "No features "));
+    client->serverReplies.push_back(RPL_ISUPPORT(client->getUsername(), "No features "));
 
     // RPL_MOTDSTART: Indicates the start of the MOTD, signaling upcoming messages.
-    client->getServerReplies().push_back(RPL_MOTDSTART(client->getUsername(), std::string("ircserv")));
+    client->serverReplies.push_back(RPL_MOTDSTART(client->getUsername(), std::string("ircserv")));
 
     // Check if the MOTD file is open and readable
     if (infile.is_open()) {
         // Read the MOTD file line by line
         while (std::getline(infile, line)) {
             // Add each line of the MOTD to the server replies
-            client->getServerReplies().push_back(RPL_MOTD(std::string("ircserv"), line));
+            client->serverReplies.push_back(RPL_MOTD(std::string("ircserv"), line));
         }
         infile.close(); // Close the file after reading
     } else {
         // If the MOTD file cannot be opened, send an error message
-        client->getServerReplies().push_back(ERR_NOMOTD(std::string("ircserv")));
+        client->serverReplies.push_back(ERR_NOMOTD(std::string("ircserv")));
     }
     
     // Add the end of MOTD message to the server replies
-    client->getServerReplies().push_back(RPL_ENDOFMOTD(std::string("ircserv")));
+    client->serverReplies.push_back(RPL_ENDOFMOTD(std::string("ircserv")));
     client->setHasSentWelcomeMessage(true); // Mark that the welcome message has been sent
     return; // Exit the function
 }
@@ -93,7 +93,7 @@ void Client::MOTD(Client *client, std::string serverStartTime) {
 void Client::handleNickCommand(Client *client, const std::vector<std::string> &params, std::vector<std::string>& nicknames) {
     // Check if there are parameters for the nickname command
     if (params.size() < 1) {
-        client->getServerReplies().push_back(ERR_NONICKNAMEGIVEN(std::string("ircserv"))); // No nickname given
+        client->serverReplies.push_back(ERR_NONICKNAMEGIVEN(std::string("ircserv"))); // No nickname given
         return; // Exit if no nickname is provided
     }
 
@@ -101,13 +101,13 @@ void Client::handleNickCommand(Client *client, const std::vector<std::string> &p
 
     // Check if the nickname starts with a digit
     if (!nickName.empty() && isdigit(nickName[0])) {
-        client->getServerReplies().push_back(ERR_ERRONEUSNICKNAME(std::string("ircserv"), nickName)); // Invalid nickname
+        client->serverReplies.push_back(ERR_ERRONEUSNICKNAME(std::string("ircserv"), nickName)); // Invalid nickname
         return; // Exit if the nickname is invalid
     }
 
     // Check if the nickname exceeds the maximum length of 9 characters
     if (nickName.length() > 9) {
-        client->getServerReplies().push_back(ERR_ERRONEUSNICKNAME(std::string("ircserv"), nickName)); // Invalid nickname
+        client->serverReplies.push_back(ERR_ERRONEUSNICKNAME(std::string("ircserv"), nickName)); // Invalid nickname
         return; // Exit if the nickname is too long
     }
 
@@ -115,14 +115,14 @@ void Client::handleNickCommand(Client *client, const std::vector<std::string> &p
     for (std::string::iterator it = nickName.begin(); it != nickName.end(); ++it) {
         if (!isalnum(*it) && *it != '[' && *it != ']' && *it != '{' && *it != '}'
             && *it != '|' && *it != '-' && *it != '_') {
-            client->getServerReplies().push_back(ERR_ERRONEUSNICKNAME(std::string("ircserv"), nickName)); // Invalid nickname
+            client->serverReplies.push_back(ERR_ERRONEUSNICKNAME(std::string("ircserv"), nickName)); // Invalid nickname
             return; // Exit if the nickname contains invalid characters
         }
     }
 
     // Check if the nickname is already in use
     if (!nicknames.empty() && std::find(nicknames.begin(), nicknames.end(), nickName) != nicknames.end()) {
-        client->getServerReplies().push_back(ERR_NICKNAMEINUSE(std::string("ircserv"), nickName)); // Nickname already in use
+        client->serverReplies.push_back(ERR_NICKNAMEINUSE(std::string("ircserv"), nickName)); // Nickname already in use
         return; // Exit if the nickname is taken
     }
 
@@ -130,7 +130,7 @@ void Client::handleNickCommand(Client *client, const std::vector<std::string> &p
     if (!client->getNickname().empty()) {
         // Remove the old nickname from the list of nicknames
         nicknames.erase(std::remove(nicknames.begin(), nicknames.end(), client->getNickname()), nicknames.end());
-        client->getServerReplies().push_back(RPL_NICK(client->getNickname(), client->getUsername(), nickName)); // Notify about the nickname change
+        client->serverReplies.push_back(RPL_NICK(client->getNickname(), client->getUsername(), nickName)); // Notify about the nickname change
         client->setNickname(nickName); // Set the new nickname
         nicknames.push_back(nickName); // Add the new nickname to the list
         return; // Exit the function
@@ -139,7 +139,7 @@ void Client::handleNickCommand(Client *client, const std::vector<std::string> &p
     // If the client does not have a nickname yet, set it
     client->setNickname(nickName); // Set the new nickname
     nicknames.push_back(nickName); // Add the new nickname to the list
-    client->getServerReplies().push_back(RPL_NICK(client->getNickname(), client->getUsername(), nickName)); // Notify about the new nickname
+    client->serverReplies.push_back(RPL_NICK(client->getNickname(), client->getUsername(), nickName)); // Notify about the new nickname
 }
 
 
@@ -153,7 +153,7 @@ void Client::handleNickCommand(Client *client, const std::vector<std::string> &p
 void Client::handleUserCommand(Client *client, const std::vector<std::string> &params) {
     // Check if there are enough parameters for the USER command
     if (params.size() < 3) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(std::string("ircserv"), "USER")); // Not enough parameters
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(std::string("ircserv"), "USER")); // Not enough parameters
         return; // Exit if parameters are insufficient
     }
 
@@ -165,7 +165,7 @@ void Client::handleUserCommand(Client *client, const std::vector<std::string> &p
     if (client->getHasSentPass()) {
         // Prepare a success message indicating successful registration
         std::string successMessage = "USER " + client->getUsername() + " registered successfully!\r\n";
-        client->getServerReplies().push_back(successMessage); // Add the success message to the server replies
+        client->serverReplies.push_back(successMessage); // Add the success message to the server replies
         client->setIsRegistered(true); // Mark the client as registered
     }
 }
@@ -183,7 +183,7 @@ void Client::handleCapCommand(Client *client, const std::vector<std::string> &pa
     if (params.size() > 0 && params[0] == "LS") {
 
         client->setRegisterSteps(0, true); // Set the registration step for capabilities
-        client->getServerReplies().push_back(":ircserv CAP * LS : \r\n"); // Send the capability list to the client
+        client->serverReplies.push_back(":ircserv CAP * LS : \r\n"); // Send the capability list to the client
     } 
     // Check if the client is in the appropriate registration step for capabilities
     else if (client->getRegisterSteps(0)) {
@@ -192,13 +192,13 @@ void Client::handleCapCommand(Client *client, const std::vector<std::string> &pa
             // Example: Handle requested capabilities
             // Store the requested capabilities, assuming you have a vector or set in the Client class
             client->addRequestedCapability(params[1]); // Store requested capability
-            client->getServerReplies().push_back(":ircserv CAP * REQ : " + params[1] + "\r\n"); // Acknowledge capability request
+            client->serverReplies.push_back(":ircserv CAP * REQ : " + params[1] + "\r\n"); // Acknowledge capability request
         } 
         else if (params.size() == 2 && params[0] == "NAK") {
-            client->getServerReplies().push_back(":ircserv CAP * NAK : " + params[1] + "\r\n"); // Notify about capability denial
+            client->serverReplies.push_back(":ircserv CAP * NAK : " + params[1] + "\r\n"); // Notify about capability denial
         } 
         else if (params.size() == 2 && params[0] == "ACK") {
-            client->getServerReplies().push_back(":ircserv CAP * ACK : " + params[1] + "\r\n"); // Acknowledge received capabilities
+            client->serverReplies.push_back(":ircserv CAP * ACK : " + params[1] + "\r\n"); // Acknowledge received capabilities
         } 
     }
 }
@@ -206,7 +206,7 @@ void Client::handleCapCommand(Client *client, const std::vector<std::string> &pa
 void Client::handlePassCommand(Client *client, const std::vector<std::string> &params, const std::string &expectedPassword) {   
     // Check if the client sent exactly one parameter for the PASS command
     if (params.size() != 1) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(std::string("ircserv"), "PART")); // Insufficient parameters
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(std::string("ircserv"), "PART")); // Insufficient parameters
         return; // Exit if the parameters are not correct
     }
 
@@ -215,7 +215,7 @@ void Client::handlePassCommand(Client *client, const std::vector<std::string> &p
     if (passwordAttempt == expectedPassword) {
         // Prepare a success message indicating the password was accepted
         std::string successMessage = "Password accepted\r\n";
-        client->getServerReplies().push_back(successMessage); // Add the success message to the server replies
+        client->serverReplies.push_back(successMessage); // Add the success message to the server replies
         client->setHasSentPass(true); // Mark that the password has been sent successfully
     }
 }

@@ -242,7 +242,7 @@ void Channel::broadcastMessage(const std::string message)
     {
         if (it->second->getSocket() != -1)
         {
-            it->second->getServerReplies().push_back(message);
+            it->second->serverReplies.push_back(message);
         }
     }
 }
@@ -261,7 +261,7 @@ void Channel::sendToOthers(Client *client, std::string message)
     {
         if (it->second->getSocket() != -1 && it->second != client)
         {
-            it->second->getServerReplies().push_back(message);
+            it->second->serverReplies.push_back(message);
         }
     }
 }

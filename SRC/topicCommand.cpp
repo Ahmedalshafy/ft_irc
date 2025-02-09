@@ -40,7 +40,7 @@ void Server::topicCommand(Client *client, const ParseMessage &ParsedMsg)
 
     // Validate required parameters
     if (params.empty()) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "TOPIC"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "TOPIC"));
         return;
     }
 
@@ -53,7 +53,7 @@ void Server::topicCommand(Client *client, const ParseMessage &ParsedMsg)
     // Check if channel exists
     if (!isChannelInServer(channelName)) {
         response = ERR_NOSUCHCHANNEL(client->getNickname(), channelName);
-        client->getServerReplies().push_back(response);
+        client->serverReplies.push_back(response);
         return;
     }
 
@@ -62,7 +62,7 @@ void Server::topicCommand(Client *client, const ParseMessage &ParsedMsg)
     // Verify user is in the channel
     if (!channel.isClientInChannel(client->getNickname())) {
         response = ERR_NOTONCHANNEL(client->getNickname(), channelName);
-        client->getServerReplies().push_back(response);
+        client->serverReplies.push_back(response);
         return;
     }
 
@@ -73,14 +73,14 @@ void Server::topicCommand(Client *client, const ParseMessage &ParsedMsg)
         } else {
             response = RPL_TOPIC(client->getNickname(), channelName, channel.getTopic());
         }
-        client->getServerReplies().push_back(response);
+        client->serverReplies.push_back(response);
         return;
     }
 
     // Check topic change permissions
     if (channel.checkMode('t') && !channel.isOperator(client->getNickname())) {
         response = ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName);
-        client->getServerReplies().push_back(response);
+        client->serverReplies.push_back(response);
         return;
     }
 

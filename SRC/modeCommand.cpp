@@ -42,12 +42,12 @@ bool Server::handleKeyMode(Client *client, Channel &channel, bool isAdding,
         if(isAlphanumeric(params[paramIndex])) {
             channel.setKey(params[paramIndex++]);
             std::string key(channel.getKey().size(), '*');
-            client->getServerReplies().push_back(RPL_CHANNELMODEISWITHKEY(client->getNickname(), 
+            client->serverReplies.push_back(RPL_CHANNELMODEISWITHKEY(client->getNickname(), 
                                           channel.getChannelName(), channel.getModes(), key));
             return (true);
         }
         else {
-            client->getServerReplies().push_back(ERR_INVALIDMODEPARAM(client->getNickname(),
+            client->serverReplies.push_back(ERR_INVALIDMODEPARAM(client->getNickname(),
                                           channel.getChannelName(),'k', params[paramIndex++]));
             return(false);
         }
@@ -55,7 +55,7 @@ bool Server::handleKeyMode(Client *client, Channel &channel, bool isAdding,
     } 
     // Adding key but missing parameter
     else if (isAdding) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE +k"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE +k"));
     } 
     // Removing key
     else {
@@ -95,13 +95,13 @@ bool Server::handleLimitMode(Client *client, Channel &channel, bool isAdding,
         UserLimit = std::atoi(params[paramIndex++].c_str());
         if (UserLimit > 0) {
             channel.setUserLimit(UserLimit);
-            client->getServerReplies().push_back(RPL_CHANNELMODEISWITHKEY(client->getNickname(),
+            client->serverReplies.push_back(RPL_CHANNELMODEISWITHKEY(client->getNickname(),
                                           channel.getChannelName(), channel.getModes(),
                                           params[paramIndex - 1]));
             return (true);
         }
         else {
-            client->getServerReplies().push_back(ERR_INVALIDMODEPARAM(client->getNickname(),
+            client->serverReplies.push_back(ERR_INVALIDMODEPARAM(client->getNickname(),
                                           channel.getChannelName(), 'l',
                                           params[paramIndex - 1]));
             return (false);
@@ -109,7 +109,7 @@ bool Server::handleLimitMode(Client *client, Channel &channel, bool isAdding,
     }
     // Adding limit but missing parameter
     else if (isAdding) {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE +l"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE +l"));
     }
     // Removing limit
     else {
@@ -149,7 +149,7 @@ bool Server::handleOperatorMode(Client *client, Channel &channel, bool isAdding,
         std::string targetNick = params[paramIndex++];
         if(!channel.isClientInChannel(targetNick))
         {
-            client->getServerReplies().push_back(ERR_USERNOTINCHANNEL(client->getNickname(), targetNick, channel.getChannelName()));
+            client->serverReplies.push_back(ERR_USERNOTINCHANNEL(client->getNickname(), targetNick, channel.getChannelName()));
             return (false);
         }
         if (isAdding)
@@ -161,7 +161,7 @@ bool Server::handleOperatorMode(Client *client, Channel &channel, bool isAdding,
     // Missing parameter
     else
     {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE o"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE o"));
     }
     return (false);
 }
@@ -198,7 +198,7 @@ bool Server::processSingleChannelMode(Client *client, Channel &channel,
     case 'b':
         return (false);
     default:
-        client->getServerReplies().push_back(ERR_UNKNOWNMODE(client->getNickname(), std::string(1,
+        client->serverReplies.push_back(ERR_UNKNOWNMODE(client->getNickname(), std::string(1,
                     mode)));
         return (false);
     }
@@ -259,7 +259,7 @@ void Server::handleChannelMode(Client *client, std::string &channelName,
 {
     if (!Server::isChannelInServer(channelName))
     {
-        client->getServerReplies().push_back(ERR_NOSUCHCHANNEL(client->getNickname(),
+        client->serverReplies.push_back(ERR_NOSUCHCHANNEL(client->getNickname(),
                 channelName));
         return ;
     }
@@ -267,14 +267,14 @@ void Server::handleChannelMode(Client *client, std::string &channelName,
     const std::string nick = client->getNickname();
     if (params.size() == 1)
     {
-        client->getServerReplies().push_back(RPL_CHANNELMODEIS(client->getNickname(), channelName,
+        client->serverReplies.push_back(RPL_CHANNELMODEIS(client->getNickname(), channelName,
                 channel.getModes()));
     }
     else
     {
         if (!channel.isOperator(const_cast<std::string &>(client->getNickname())))
         {
-            client->getServerReplies().push_back(ERR_CHANOPRIVSNEEDED(client->getNickname(),
+            client->serverReplies.push_back(ERR_CHANOPRIVSNEEDED(client->getNickname(),
                     channelName));
             return ;
         }
@@ -310,7 +310,7 @@ void Server::handelModeCommand(Client *client, const ParseMessage &parsedMsg)
 
     if (params.size() < 1)
     {
-        client->getServerReplies().push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE"));
+        client->serverReplies.push_back(ERR_NEEDMOREPARAMS(client->getNickname(), "MODE"));
         return ;
     }
     std::string target = params[0];
@@ -325,7 +325,7 @@ void Server::handelModeCommand(Client *client, const ParseMessage &parsedMsg)
         if (client->getIsRegistered() == false)
         {
 
-            client->getServerReplies().push_back(ERR_NOSUCHCHANNEL(client->getNickname(), target));
+            client->serverReplies.push_back(ERR_NOSUCHCHANNEL(client->getNickname(), target));
         }
     }
 }
