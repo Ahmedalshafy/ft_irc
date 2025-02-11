@@ -11,7 +11,7 @@ sudo apt-get install irssi
 
 2. Start the IRC server:
 ```bash
-./ircserv 6667 password123
+./ircserv 4242 pass
 ```
 
 ## Test Categories
@@ -20,8 +20,11 @@ sudo apt-get install irssi
 
 #### 1.1 Basic Connection
 ```bash
+# Connect start the client
+irssi
+
 # Connect to server
-irssi -c localhost -p 6667
+/connect localhost 4242 password123
 
 # Register with server
 /PASS password123

@@ -8,7 +8,7 @@ void	Server::motdCommand(Client *client)
 
 	if(!client->isRegistered)
 		return;
-    infile.open("./source_files/motd.txt", std::ios::in);
+    infile.open("./MOTD.txt", std::ios::in);
 	
 	client->serverReplies.push_back( RPL_WELCOME(user_id(client->getNickname(),client->getUsername()),client->getNickname()));
 	client->serverReplies.push_back( RPL_YOURHOST(client->getUsername(),"irssi", "1"));
