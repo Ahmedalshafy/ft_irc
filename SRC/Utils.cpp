@@ -3,26 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabdelsa <mabdelsa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aalshafy <aalshafy@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 21:02:31 by mahmoud           #+#    #+#             */
-/*   Updated: 2024/10/21 13:55:01 by mabdelsa         ###   ########.fr       */
+/*   Updated: 2025/02/04 18:10:42 by aalshafy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../Includes/Server.hpp"
+#include "../Includes/Utils.hpp"
 
 // Function to trim whitespace
-std::string ft_trim(const std::string &str)
-{
-    std::size_t start = str.find_first_not_of(" \n\r\t");
-    std::size_t end = str.find_last_not_of(" \n\r\t");
-    if (start == std::string::npos || end == std::string::npos)
-    {
-        return "";
-    }
-    return str.substr(start, end - start + 1);
-}
+// std::string ft_trim(std::string text)
+// {
+//     std::size_t first = text.find_first_not_of(" \n\r\t");
+//     std::size_t last = text.find_last_not_of(" \n\r\t");
+
+//     if (first == std::string::npos || last == std::string::npos) {
+//         return "";
+//     }
+//     return text.substr(first, (last - first + 1));
+// }
 
 // Function to split strings by a delimiter
 std::vector<std::string> ft_split(std::string str, char delimiter)
@@ -52,8 +53,19 @@ std::vector<std::string> ft_split(std::string str, char delimiter)
     return result;
 }
 
-// Function to create a user identifier string in IRC format
-std::string user_id(const std::string &nickname, const std::string &username)
+
+bool isAlphanumeric(const std::string &str)
 {
-    return ":" + nickname + "!" + username + "@localhost";
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+    {
+        if (!std::isalnum(*it))
+            return false;
+    }
+    return true;
 }
+
+// Function to create a user identifier string in IRC format
+// std::string user_id(const std::string &nickname, const std::string &username)
+// {
+//     return ":" + nickname + "!" + username + "@localhost";
+// }
