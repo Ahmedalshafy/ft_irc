@@ -251,13 +251,7 @@ void Server::handleClientDisconnection(int client_fd, int bytesRecv) {
         std::cerr << "Error receiving message from client " << client_fd << " (" << strerror(errno) << ")" << std::endl;
     }
 
-    for (std::vector<pollfd>::iterator it = _fds.begin(); it != _fds.end(); ++it) {
-        if (it->fd == client_fd) {
-            it->fd = -1;
-            break;
-        }
-    }
-
+    closeClient(client_fd);
     return;
 }
 
