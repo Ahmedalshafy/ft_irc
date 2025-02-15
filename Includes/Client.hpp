@@ -30,6 +30,7 @@ class Client {
 		std::string					_nickname;
 		std::string					_username;
 		std::string					_channel;
+		std::string					_messageBuffer;
 		
 
 	public:
@@ -47,6 +48,10 @@ class Client {
 		void		setNickname( const std::string &nickname );
 		void		setUsername( const std::string &username );
 		void		setFd(int value);
+		
+		void		appendToBuffer(const std::string& data);
+		std::string&	getBuffer();
+		void		clearBuffer();
 		
 		//GETTERS
 		std::string getFullIdentity( void ) const;

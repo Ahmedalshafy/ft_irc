@@ -133,6 +133,29 @@ void Client::setFd(int value) {
 }
 
 /**
+ * @brief Append data to the client's message buffer
+ * @param data The data to append
+ */
+void Client::appendToBuffer(const std::string& data) {
+    _messageBuffer += data;
+}
+
+/**
+ * @brief Get the client's message buffer
+ * @return Reference to the client's message buffer
+ */
+std::string& Client::getBuffer() {
+    return _messageBuffer;
+}
+
+/**
+ * @brief Clear the client's message buffer
+ */
+void Client::clearBuffer() {
+    _messageBuffer.clear();
+}
+
+/**
  * @brief Get the client's socket file descriptor
  * @return The client's file descriptor
  */

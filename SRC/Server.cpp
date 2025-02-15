@@ -278,20 +278,30 @@ void Server::handleClientMessage(int client_fd) {
         handleClientDisconnection(client_fd, bytesRecv);
         return;
     }
+
+    // Append new data to client's buffer
+    _clients[client_fd]->appendToBuffer(_message);
+    
+    std::string& buffer = _clients[client_fd]->getBuffer();
     std::vector<std::string> commandList;
-    if (_message.empty() || (_message[_message.size() - 1] != '\n' && (_message.size() >= 2 && _message.substr(_message.size() - 2) != "\r\n"))) {
-        std::cerr << "Invalid message format from client " << client_fd << std::endl;
-        _message.clear();
-        return;
-    }
-    //split on newline using ft_split and return a vector of strings and loop through that and push to 
-    std::cout << "Received message from client " << _clients[client_fd]->getNickname() << ": " << _message << std::endl;
-    commandList = ft_split(_message, '\n');
-    for (std::size_t i = 0; i < commandList.size(); i++) {
-        ParseMessage parsedMsg(commandList[i]);
+    size_t pos;
+
+    // Find complete commands (ending with \n or \r\n)
+    while ((pos = buffer.find('\n')) != std::string::npos) {
+        // Extract the complete command (including the \n)
+        std::string completeCommand = buffer.substr(0, pos + 1);
+        
+        // Remove the processed command from buffer
+        buffer.erase(0, pos + 1);
+        
+        // Process the complete command
+        std::cout << "Received complete command from client " << _clients[client_fd]->getNickname() 
+                 << ": " << completeCommand;
+        
+        ParseMessage parsedMsg(completeCommand);
         processCommand(_clients[client_fd], parsedMsg);
     }
-    commandList.clear();
+
     return;
 }
 
